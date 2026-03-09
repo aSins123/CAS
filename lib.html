@@ -223,7 +223,8 @@
                 <div class="loading-state">正在加载数据库，请稍候...</div>
             </div>
             <div class="content" id="detailContent">
-                <div class="empty-state">
+                <!-- 初始提示改为空，避免遮挡 -->
+                <div class="empty-state" id="initTip">
                     <p>请先加载数据库并搜索题目</p>
                 </div>
             </div>
@@ -237,6 +238,8 @@
         let SQL;
         let searchDebounceTimer = null;
         let currentSearchKeyword = '';
+        // 缓存初始提示元素
+        const initTipEl = document.getElementById('initTip');
 
         async function initApp() {
             try {
@@ -274,6 +277,8 @@
             if (!keyword.trim()) {
                 currentResults = [];
                 renderResults();
+                // 搜索空内容时恢复初始提示
+                initTipEl.style.display = 'block';
                 return;
             }
             try {
@@ -288,6 +293,8 @@
                 while (stmt.step()) currentResults.push(stmt.getAsObject());
                 stmt.free();
                 renderResults();
+                // 有搜索内容时隐藏初始提示
+                initTipEl.style.display = 'none';
             } catch (e) {}
         }
 
@@ -314,6 +321,9 @@
         }
 
         function showDetail(index) {
+            // 点击结果时强制隐藏初始提示
+            initTipEl.style.display = 'none';
+            
             const item = currentResults[index];
             const content = document.getElementById('detailContent');
             let opts = '';
