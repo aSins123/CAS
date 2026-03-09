@@ -13,7 +13,7 @@
         }
         body {
             background-color: #f5f7fa;
-            padding: 20px;
+            padding: 10px;
         }
         .container {
             max-width: 1200px;
@@ -26,24 +26,20 @@
         .header {
             background-color: #0078d7;
             color: white;
-            padding: 16px 20px;
+            padding: 12px 15px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 10px;
         }
         .header h1 {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 500;
-        }
-        .header-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+            text-align: center;
         }
         .search-bar {
             display: flex;
             gap: 8px;
-            width: 300px;
+            width: 100%;
         }
         .search-bar input {
             flex: 1;
@@ -59,36 +55,31 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            transition: background 0.2s;
         }
-        .search-bar button:hover {
-            background-color: #004578;
-        }
+
         .main {
             display: flex;
-            height: calc(100vh - 140px);
-            min-height: 500px;
+            flex-direction: column;
+            min-height: calc(100vh - 180px);
         }
+
         .sidebar {
-            width: 280px;
+            width: 100%;
             background-color: #f0f2f5;
-            border-right: 1px solid #e1e4e8;
+            border-bottom: 1px solid #e1e4e8;
+            max-height: 260px;
             overflow-y: auto;
             padding: 10px;
         }
         .result-item {
-            padding: 12px;
-            margin-bottom: 8px;
+            padding: 10px;
+            margin-bottom: 6px;
             background: white;
             border-radius: 4px;
             cursor: pointer;
             border-left: 3px solid transparent;
-            transition: all 0.2s;
         }
-        .result-item:hover {
-            background-color: #e8f0fe;
-            border-left-color: #0078d7;
-        }
+        .result-item:hover,
         .result-item.active {
             background-color: #e8f0fe;
             border-left-color: #0078d7;
@@ -106,47 +97,47 @@
             font-size: 12px;
             color: #666;
         }
-        /* 新增关键词高亮样式 */
         .highlight {
             background-color: #fff380;
             color: #d97706;
             padding: 0 2px;
             border-radius: 2px;
         }
+
         .content {
             flex: 1;
-            padding: 24px;
+            padding: 15px;
             overflow-y: auto;
         }
         .question-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             color: #1e293b;
-            margin-bottom: 20px;
-            line-height: 1.6;
+            margin-bottom: 12px;
+            line-height: 1.5;
         }
         .question-meta {
             font-size: 12px;
             color: #666;
-            margin-bottom: 16px;
-            padding: 8px 12px;
+            margin-bottom: 12px;
+            padding: 6px 10px;
             background-color: #f1f5f9;
             border-radius: 4px;
         }
         .options {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .option-item {
-            padding: 10px 16px;
-            margin-bottom: 8px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
             background-color: #f8fafc;
             border-radius: 4px;
             font-size: 14px;
             color: #475569;
         }
         .answer-section {
-            margin-bottom: 20px;
-            padding: 12px 16px;
+            margin-bottom: 15px;
+            padding: 10px 12px;
             background-color: #dcfce7;
             border-radius: 4px;
             border-left: 4px solid #22c55e;
@@ -158,12 +149,12 @@
             margin-bottom: 4px;
         }
         .answer-content {
-            font-size: 16px;
+            font-size: 15px;
             color: #14532d;
             font-weight: 500;
         }
         .analysis-section {
-            padding: 16px;
+            padding: 12px;
             background-color: #fef3c7;
             border-radius: 4px;
             border-left: 4px solid #f59e0b;
@@ -177,29 +168,44 @@
         .analysis-content {
             font-size: 14px;
             color: #78350f;
-            line-height: 1.6;
+            line-height: 1.5;
         }
-        .empty-state {
+        .empty-state, .status-text, .loading-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 30px 15px;
             color: #94a3b8;
         }
-        .empty-state svg {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 16px;
-            stroke: #cbd5e1;
-        }
-        .status-text {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 14px;
-        }
-        .loading-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
+
+        /* PC端横排 */
+        @media (min-width: 768px) {
+            .header {
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 16px 20px;
+            }
+            .header h1 {
+                text-align: left;
+                font-size: 20px;
+            }
+            .search-bar {
+                width: 320px;
+            }
+            .main {
+                flex-direction: row;
+            }
+            .sidebar {
+                width: 300px;
+                max-height: none;
+                height: calc(100vh - 140px);
+                border-bottom: none;
+                border-right: 1px solid #e1e4e8;
+            }
+            .content {
+                padding: 24px;
+            }
+            .question-title {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
@@ -207,11 +213,9 @@
     <div class="container">
         <div class="header">
             <h1>知识库</h1>
-            <div class="header-actions">
-                <div class="search-bar">
-                    <input type="text" id="searchInput" placeholder="输入关键词搜索题目...">
-                    <button id="searchBtn">搜索</button>
-                </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="输入关键词搜索题目...">
+                <button id="searchBtn">搜索</button>
             </div>
         </div>
         <div class="main">
@@ -220,9 +224,6 @@
             </div>
             <div class="content" id="detailContent">
                 <div class="empty-state">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
                     <p>请先加载数据库并搜索题目</p>
                 </div>
             </div>
@@ -233,153 +234,97 @@
     <script>
         let db;
         let currentResults = [];
-        let SQL; // 全局保存SQL实例
-        let searchDebounceTimer = null; // 防抖定时器
-        let currentSearchKeyword = ''; // 保存当前搜索关键词，用于高亮
+        let SQL;
+        let searchDebounceTimer = null;
+        let currentSearchKeyword = '';
 
-        // 预加载SQL.js核心库并自动加载同目录的data.db
         async function initApp() {
             try {
-                // 1. 加载SQL.js核心库
                 SQL = await initSqlJs({
                     locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
                 });
-                console.log("SQL.js 加载完成");
-
-                // 2. 自动加载同目录下的data.db
                 await loadLocalDb();
             } catch (error) {
-                console.error("初始化失败:", error);
                 document.getElementById('resultList').innerHTML = '<div class="status-text">数据库加载失败！请确认data.db和本HTML文件在同一目录</div>';
-                alert("初始化失败：" + error.message + "\n请确认data.db文件和本HTML文件放在同一目录下");
             }
         }
 
-        // 自动加载同目录的data.db文件
         async function loadLocalDb() {
             try {
-                // 发起请求获取同目录的data.db
                 const response = await fetch('data.db');
-                if (!response.ok) {
-                    throw new Error(`无法获取data.db文件 (状态码: ${response.status})`);
-                }
-
-                // 读取文件内容并创建数据库
+                if (!response.ok) throw new Error("找不到 data.db");
                 const arrayBuffer = await response.arrayBuffer();
                 const data = new Uint8Array(arrayBuffer);
                 db = new SQL.Database(data);
-                
-                // 更新状态提示
                 document.getElementById('resultList').innerHTML = '<div class="status-text">数据库加载成功！请在搜索框输入关键词搜索</div>';
-                console.log("data.db 加载成功");
             } catch (error) {
-                throw new Error("加载data.db失败：" + error.message);
+                document.getElementById('resultList').innerHTML = '<div class="status-text">data.db 加载失败，请放在同一目录</div>';
             }
         }
 
-        // 关键词高亮处理函数
         function highlightKeyword(text, keyword) {
-            if (!text || !keyword || keyword.trim() === '') {
-                return text;
-            }
-            
-            // 转义特殊字符，避免正则报错
-            const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            // 创建不区分大小写的正则
-            const regex = new RegExp(escapedKeyword, 'gi');
-            // 替换匹配的关键词为高亮样式
-            return text.replace(regex, match => `<span class="highlight">${match}</span>`);
+            if (!text || !keyword) return text;
+            const esc = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return text.replace(new RegExp(esc, 'gi'), m => `<span class="highlight">${m}</span>`);
         }
 
-        // 执行搜索
         function searchQuestions(keyword) {
-            currentSearchKeyword = keyword; // 保存当前搜索关键词
-            if (!db) {
-                return;
-            }
-
+            currentSearchKeyword = keyword;
+            if (!db) return;
             if (!keyword.trim()) {
                 currentResults = [];
                 renderResults();
                 return;
             }
-
             try {
-                // 同时查询两张表
                 const stmt = db.prepare(`
                     SELECT 题目, 选项A, 选项B, 选项C, 选项D, 选项E, 选项F, 答案, 解析, 题库, '默认题库' as 来源 FROM "默认题库" WHERE 题目 LIKE ?
                     UNION ALL
                     SELECT 题目, 选项A, 选项B, 选项C, 选项D, 选项E, 选项F, 答案, 解析, 题库, '其他题库' as 来源 FROM "其他题库" WHERE 题目 LIKE ?
                 `);
-                
-                const wildcardKeyword = `%${keyword}%`;
-                stmt.bind([wildcardKeyword, wildcardKeyword]);
-                
+                const wd = `%${keyword}%`;
+                stmt.bind([wd, wd]);
                 currentResults = [];
-                while (stmt.step()) {
-                    currentResults.push(stmt.getAsObject());
-                }
+                while (stmt.step()) currentResults.push(stmt.getAsObject());
                 stmt.free();
-
                 renderResults();
-            } catch (error) {
-                console.error('搜索出错:', error);
-            }
+            } catch (e) {}
         }
 
-        // 防抖处理的搜索函数
         function debouncedSearch(keyword) {
             clearTimeout(searchDebounceTimer);
-            // 300ms防抖，避免输入过程中频繁搜索
-            searchDebounceTimer = setTimeout(() => {
-                searchQuestions(keyword);
-            }, 300);
+            searchDebounceTimer = setTimeout(() => searchQuestions(keyword), 300);
         }
 
-        // 渲染搜索结果列表（新增关键词高亮）
         function renderResults() {
-            const listEl = document.getElementById('resultList');
-            listEl.innerHTML = '';
-
+            const el = document.getElementById('resultList');
+            el.innerHTML = '';
             if (currentResults.length === 0) {
-                listEl.innerHTML = '<div class="empty-state"><p>未找到相关题目</p></div>';
+                el.innerHTML = '<div class="empty-state"><p>未找到相关题目</p></div>';
                 return;
             }
-
             currentResults.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'result-item';
-                // 对题目中的关键词进行高亮处理
-                const highlightedTitle = highlightKeyword(item.题目, currentSearchKeyword);
-                div.innerHTML = `
-                    <div class="title">${highlightedTitle}</div>
-                    <div class="source">来源: ${item.来源} | 题库: ${item.题库}</div>
-                `;
+                const title = highlightKeyword(item.题目, currentSearchKeyword);
+                div.innerHTML = `<div class="title">${title}</div><div class="source">来源: ${item.来源} | 题库: ${item.题库}</div>`;
                 div.onclick = () => showDetail(index);
-                listEl.appendChild(div);
+                el.appendChild(div);
             });
         }
 
-        // 显示题目详情（仅在题目标题下方展示题库字段）
         function showDetail(index) {
             const item = currentResults[index];
-            const contentEl = document.getElementById('detailContent');
-
-            // 生成选项列表
-            let optionsHtml = '';
-            const optionLabels = ['A', 'B', 'C', 'D', 'E', 'F'];
-            optionLabels.forEach(label => {
-                const optionText = item[`选项${label}`];
-                if (optionText && optionText.trim() !== '') {
-                    optionsHtml += `<div class="option-item"><strong>${label}.</strong> ${optionText}</div>`;
-                }
+            const content = document.getElementById('detailContent');
+            let opts = '';
+            ['A','B','C','D','E','F'].forEach(l => {
+                const t = item[`选项${l}`];
+                if (t && t.trim()) opts += `<div class="option-item"><strong>${l}.</strong> ${t}</div>`;
             });
-
-            contentEl.innerHTML = `
+            content.innerHTML = `
                 <div class="question-title">${item.题目}</div>
-                <!-- 仅保留题目标题下方的题库/来源展示 -->
                 <div class="question-meta">题库：${item.题库} | 来源：${item.来源}</div>
-                <div class="options">${optionsHtml}</div>
+                <div class="options">${opts}</div>
                 <div class="answer-section">
                     <div class="answer-label">参考答案</div>
                     <div class="answer-content">${item.答案}</div>
@@ -389,34 +334,14 @@
                     <div class="analysis-content">${item.解析 || '暂无解析'}</div>
                 </div>
             `;
-
-            // 高亮当前选中项
-            document.querySelectorAll('.result-item').forEach((el, i) => {
-                el.classList.toggle('active', i === index);
-            });
+            document.querySelectorAll('.result-item').forEach((e,i) => e.classList.toggle('active', i===index));
         }
 
-        // 页面加载完成后自动初始化（加载SQL.js + 自动加载data.db）
         window.addEventListener('load', initApp);
-
-        // 绑定事件
-        document.getElementById('searchBtn').addEventListener('click', () => {
-            const keyword = document.getElementById('searchInput').value.trim();
-            searchQuestions(keyword);
-        });
-
-        // 输入时自动搜索（防抖处理）
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const keyword = e.target.value.trim();
-            debouncedSearch(keyword);
-        });
-
-        // 保留回车搜索功能
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const keyword = document.getElementById('searchInput').value.trim();
-                searchQuestions(keyword);
-            }
+        document.getElementById('searchBtn').onclick = () => searchQuestions(document.getElementById('searchInput').value.trim());
+        document.getElementById('searchInput').addEventListener('input', e => debouncedSearch(e.target.value.trim()));
+        document.getElementById('searchInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') searchQuestions(e.target.value.trim());
         });
     </script>
 </body>
