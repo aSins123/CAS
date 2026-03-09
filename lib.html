@@ -40,18 +40,6 @@
             gap: 10px;
             align-items: center;
         }
-        .load-db-btn {
-            padding: 8px 16px;
-            background-color: #00b8d9;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .load-db-btn:hover {
-            background-color: #0097b2;
-        }
         .search-bar {
             display: flex;
             gap: 8px;
@@ -130,6 +118,14 @@
             margin-bottom: 20px;
             line-height: 1.6;
         }
+        .question-meta {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 16px;
+            padding: 8px 12px;
+            background-color: #f1f5f9;
+            border-radius: 4px;
+        }
         .options {
             margin-bottom: 20px;
         }
@@ -193,6 +189,11 @@
             color: #666;
             font-size: 14px;
         }
+        .loading-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -200,7 +201,6 @@
         <div class="header">
             <h1>知识库</h1>
             <div class="header-actions">
-                <button class="load-db-btn" id="loadDbBtn">加载数据库文件</button>
                 <div class="search-bar">
                     <input type="text" id="searchInput" placeholder="输入关键词搜索题目...">
                     <button id="searchBtn">搜索</button>
@@ -209,7 +209,7 @@
         </div>
         <div class="main">
             <div class="sidebar" id="resultList">
-                <div class="status-text">请先点击右上角「加载数据库文件」按钮，选择你的data.db文件</div>
+                <div class="loading-state">正在加载数据库，请稍候...</div>
             </div>
             <div class="content" id="detailContent">
                 <div class="empty-state">
@@ -227,81 +227,57 @@
         let db;
         let currentResults = [];
         let SQL; // 全局保存SQL实例
+        let searchDebounceTimer = null; // 防抖定时器
 
-        // 预加载SQL.js核心库
-        async function preloadSqlJs() {
+        // 预加载SQL.js核心库并自动加载同目录的data.db
+        async function initApp() {
             try {
+                // 1. 加载SQL.js核心库
                 SQL = await initSqlJs({
                     locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
                 });
                 console.log("SQL.js 加载完成");
+
+                // 2. 自动加载同目录下的data.db
+                await loadLocalDb();
             } catch (error) {
-                console.error("SQL.js 加载失败:", error);
-                alert("SQL.js 加载失败，请检查网络连接！");
+                console.error("初始化失败:", error);
+                document.getElementById('resultList').innerHTML = '<div class="status-text">数据库加载失败！请确认data.db和本HTML文件在同一目录</div>';
+                alert("初始化失败：" + error.message + "\n请确认data.db文件和本HTML文件放在同一目录下");
             }
         }
 
-        // 加载数据库文件（手动触发）
-        async function loadDatabase() {
-            if (!SQL) {
-                alert("SQL.js 还在加载中，请稍等！");
-                return;
+        // 自动加载同目录的data.db文件
+        async function loadLocalDb() {
+            try {
+                // 发起请求获取同目录的data.db
+                const response = await fetch('data.db');
+                if (!response.ok) {
+                    throw new Error(`无法获取data.db文件 (状态码: ${response.status})`);
+                }
+
+                // 读取文件内容并创建数据库
+                const arrayBuffer = await response.arrayBuffer();
+                const data = new Uint8Array(arrayBuffer);
+                db = new SQL.Database(data);
+                
+                // 更新状态提示
+                document.getElementById('resultList').innerHTML = '<div class="status-text">数据库加载成功！请在搜索框输入关键词搜索</div>';
+                console.log("data.db 加载成功");
+            } catch (error) {
+                throw new Error("加载data.db失败：" + error.message);
             }
-
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = '.db,.sqlite,.sqlite3';
-            fileInput.style.display = 'none';
-            
-            // 确保input被添加到DOM中（部分浏览器要求）
-            document.body.appendChild(fileInput);
-
-            fileInput.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) {
-                    document.body.removeChild(fileInput);
-                    return;
-                }
-
-                try {
-                    // 读取文件内容
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        try {
-                            const data = new Uint8Array(event.target.result);
-                            db = new SQL.Database(data);
-                            document.getElementById('resultList').innerHTML = '<div class="status-text">数据库加载成功！请在搜索框输入关键词搜索</div>';
-                            alert('数据库加载成功！现在可以开始搜索题目了。');
-                        } catch (error) {
-                            console.error("创建数据库失败:", error);
-                            alert("数据库文件格式错误，请确认是有效的SQLite数据库！");
-                        }
-                    };
-                    reader.onerror = function() {
-                        alert("读取文件失败，请重试！");
-                    };
-                    reader.readAsArrayBuffer(file);
-                } catch (error) {
-                    console.error("加载数据库失败:", error);
-                    alert("加载数据库时出错：" + error.message);
-                } finally {
-                    document.body.removeChild(fileInput);
-                }
-            };
-
-            // 触发文件选择框
-            fileInput.click();
         }
 
         // 执行搜索
         function searchQuestions(keyword) {
             if (!db) {
-                alert('请先点击「加载数据库文件」按钮，选择你的data.db文件！');
                 return;
             }
 
             if (!keyword.trim()) {
-                alert('请输入搜索关键词！');
+                currentResults = [];
+                renderResults();
                 return;
             }
 
@@ -325,8 +301,16 @@
                 renderResults();
             } catch (error) {
                 console.error('搜索出错:', error);
-                alert('搜索失败：' + error.message + '\n请检查数据库表名和字段名是否正确。');
             }
+        }
+
+        // 防抖处理的搜索函数
+        function debouncedSearch(keyword) {
+            clearTimeout(searchDebounceTimer);
+            // 300ms防抖，避免输入过程中频繁搜索
+            searchDebounceTimer = setTimeout(() => {
+                searchQuestions(keyword);
+            }, 300);
         }
 
         // 渲染搜索结果列表
@@ -351,7 +335,7 @@
             });
         }
 
-        // 显示题目详情
+        // 显示题目详情（仅在题目标题下方展示题库字段）
         function showDetail(index) {
             const item = currentResults[index];
             const contentEl = document.getElementById('detailContent');
@@ -368,6 +352,8 @@
 
             contentEl.innerHTML = `
                 <div class="question-title">${item.题目}</div>
+                <!-- 仅保留题目标题下方的题库/来源展示 -->
+                <div class="question-meta">题库：${item.题库} | 来源：${item.来源}</div>
                 <div class="options">${optionsHtml}</div>
                 <div class="answer-section">
                     <div class="answer-label">参考答案</div>
@@ -385,17 +371,22 @@
             });
         }
 
-        // 页面加载完成后预加载SQL.js
-        window.addEventListener('load', preloadSqlJs);
+        // 页面加载完成后自动初始化（加载SQL.js + 自动加载data.db）
+        window.addEventListener('load', initApp);
 
         // 绑定事件
-        document.getElementById('loadDbBtn').addEventListener('click', loadDatabase);
-        
         document.getElementById('searchBtn').addEventListener('click', () => {
             const keyword = document.getElementById('searchInput').value.trim();
             searchQuestions(keyword);
         });
 
+        // 输入时自动搜索（防抖处理）
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const keyword = e.target.value.trim();
+            debouncedSearch(keyword);
+        });
+
+        // 保留回车搜索功能
         document.getElementById('searchInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const keyword = document.getElementById('searchInput').value.trim();
