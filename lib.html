@@ -106,6 +106,13 @@
             font-size: 12px;
             color: #666;
         }
+        /* 新增关键词高亮样式 */
+        .highlight {
+            background-color: #fff380;
+            color: #d97706;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
         .content {
             flex: 1;
             padding: 24px;
@@ -228,6 +235,7 @@
         let currentResults = [];
         let SQL; // 全局保存SQL实例
         let searchDebounceTimer = null; // 防抖定时器
+        let currentSearchKeyword = ''; // 保存当前搜索关键词，用于高亮
 
         // 预加载SQL.js核心库并自动加载同目录的data.db
         async function initApp() {
@@ -269,8 +277,23 @@
             }
         }
 
+        // 关键词高亮处理函数
+        function highlightKeyword(text, keyword) {
+            if (!text || !keyword || keyword.trim() === '') {
+                return text;
+            }
+            
+            // 转义特殊字符，避免正则报错
+            const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            // 创建不区分大小写的正则
+            const regex = new RegExp(escapedKeyword, 'gi');
+            // 替换匹配的关键词为高亮样式
+            return text.replace(regex, match => `<span class="highlight">${match}</span>`);
+        }
+
         // 执行搜索
         function searchQuestions(keyword) {
+            currentSearchKeyword = keyword; // 保存当前搜索关键词
             if (!db) {
                 return;
             }
@@ -313,7 +336,7 @@
             }, 300);
         }
 
-        // 渲染搜索结果列表
+        // 渲染搜索结果列表（新增关键词高亮）
         function renderResults() {
             const listEl = document.getElementById('resultList');
             listEl.innerHTML = '';
@@ -326,8 +349,10 @@
             currentResults.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'result-item';
+                // 对题目中的关键词进行高亮处理
+                const highlightedTitle = highlightKeyword(item.题目, currentSearchKeyword);
                 div.innerHTML = `
-                    <div class="title">${item.题目}</div>
+                    <div class="title">${highlightedTitle}</div>
                     <div class="source">来源: ${item.来源} | 题库: ${item.题库}</div>
                 `;
                 div.onclick = () => showDetail(index);
